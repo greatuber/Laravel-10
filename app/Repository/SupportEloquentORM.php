@@ -53,6 +53,6 @@ class SupportEloquentORM implements SupportRepositoryInterface
     }
     public function delete(string $id): void
     {
-        $this->model->findOrFail();
+        $this->model->findOrFail($id)->delete();
     }
 }
