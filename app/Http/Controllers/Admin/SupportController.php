@@ -6,40 +6,51 @@ use App\Models\Support;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreUpdateSupportRequest;
+use App\Services\SupportService;
 
 class SupportController extends Controller
 {
-    public function index(Support $support) {
-        $supports = $support->all();
+    public function __construct(protected SupportService $service)
+    {
+    }
+
+    public function index(Request $request)
+    {
+        $supports = $this->service->getAll($request->filter);
         return view('admin.supports.index', compact('supports'));
     }
 
-    public function show(string|int $id) {
-        if (!$support = Support::find($id)) {
+    public function show(string $id)
+    {
+        if (!$support = $this->service->findOne($id)) {
             return back();
         }
         return view('admin.supports.show', compact('support'));
     }
 
-    public function create() {
+    public function create()
+    {
         return view('admin.supports.create');
     }
 
-    public function store(StoreUpdateSupportRequest $request, Support $support) {
+    public function store(StoreUpdateSupportRequest $request, Support $support)
+    {
         $data = $request->all();
         $data['status'] = 'a';
         $support = $support->create($data);
         return redirect()->route('supports.index');
     }
 
-    public function edit(string|int $id) {
-        if (!$support = Support::find($id)) {
+    public function edit(string $id)
+    {
+        if (!$support = $this->service->findOne($id)) {
             return back();
         }
         return view('admin.supports.edit', compact('support'));
     }
 
-    public function update(StoreUpdateSupportRequest $request, string $id) {
+    public function update(StoreUpdateSupportRequest $request, string $id)
+    {
         if (!$support = Support::find($id)) {
             return back();
         }
@@ -49,11 +60,10 @@ class SupportController extends Controller
         return redirect()->route('supports.index');
     }
 
-    public function destroy(string|int $id) {
-        if (!$support = Support::find($id)) {
-            return back();
-        }
-        $support->delete();
+    public function destroy(string $id)
+    {
+        $this->service->delete($id);
+
         return redirect()->route('supports.index');
     }
 }
